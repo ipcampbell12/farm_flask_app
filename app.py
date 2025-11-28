@@ -16,6 +16,7 @@ def generate():
     inserted = []
     for farm_id in range(1, NUM_FARMS+1):
         data = generate_sensor_data(farm_id)
+        print("Generated data:", data)
         insert_sensor_data(data)
         inserted.append(data)
     return jsonify(inserted)
