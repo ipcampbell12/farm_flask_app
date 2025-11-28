@@ -5,12 +5,8 @@ import oracledb
 # Environment variables
 # ----------------------------
 USER = os.getenv("DB_USER")
-PASSWORD = os.getenv("DB_PASS")
+PASSWORD = os.getenv("DB_PASSWORD")
 DSN = os.getenv("DB_DSN")
-WALLET_PATH = os.getenv("TNS_ADMIN", "/tmp/wallet")  # Render wallet path
-
-# Ensure Oracle client sees the wallet
-os.environ["TNS_ADMIN"] = WALLET_PATH
 
 # ----------------------------
 # Debug prints
@@ -18,7 +14,6 @@ os.environ["TNS_ADMIN"] = WALLET_PATH
 print("=== Oracle DB Debug Info ===")
 print("DB_USER:", USER)
 print("DB_DSN:", DSN)
-print("Wallet path (TNS_ADMIN):", WALLET_PATH)
 print("============================")
 
 # ----------------------------
@@ -32,8 +27,7 @@ def get_connection():
         conn = oracledb.connect(
             user=USER,
             password=PASSWORD,
-            dsn=DSN,
-            config_dir=WALLET_PATH
+            dsn=DSN
         )
         print("Connected successfully!")
         return conn
