@@ -2,6 +2,7 @@ import os
 import oracledb
 import logging
 
+oracledb.thin_mode = True
 # ----------------------------
 # Logging setup
 # ----------------------------
