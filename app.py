@@ -5,6 +5,12 @@ from db import insert_sensor_data
 app = Flask(__name__)
 NUM_FARMS = 5
 
+
+@app.route("/")
+def index():
+    return jsonify({"ok": True, "message": "Flask + Oracle is live!"})
+
+
 @app.route("/generate")
 def generate():
     inserted = []
@@ -13,6 +19,7 @@ def generate():
         insert_sensor_data(data)
         inserted.append(data)
     return jsonify(inserted)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
