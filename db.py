@@ -1,20 +1,24 @@
 import os
 import oracledb
+import logging
+
+# ----------------------------
+# Logging setup
+# ----------------------------
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # ----------------------------
 # Environment variables
 # ----------------------------
-USER = os.getenv("DB_USER")
-PASSWORD = os.getenv("DB_PASSWORD")
-DSN = os.getenv("DB_DSN")
+DB_USER = os.getenv("DB_USER")
+DB_PASS = os.getenv("DB_PASS")
+DB_DSN = os.getenv("DB_DSN")
 
-# ----------------------------
-# Debug prints
-# ----------------------------
-print("=== Oracle DB Debug Info ===")
-print("DB_USER:", USER)
-print("DB_DSN:", DSN)
-print("============================")
+logger.info("=== Oracle DB Debug Info ===")
+logger.info(f"DB_USER: {DB_USER}")
+logger.info(f"DB_DSN: {DB_DSN}")
+logger.info("============================")
 
 # ----------------------------
 # DB Connection
@@ -23,16 +27,16 @@ print("============================")
 
 def get_connection():
     try:
-        print("Connecting to Oracle...")
+        logger.info("Connecting to Oracle...")
         conn = oracledb.connect(
-            user=USER,
-            password=PASSWORD,
-            dsn=DSN
+            user=DB_USER,
+            password=DB_PASS,
+            dsn=DB_DSN
         )
-        print("Connected successfully!")
+        logger.info("Connected successfully!")
         return conn
     except Exception as e:
-        print("CONNECTION ERROR:", e)
+        logger.error("CONNECTION ERROR: %s", e)
         raise
 
 # ----------------------------
@@ -52,9 +56,9 @@ def insert_sensor_data(data):
             VALUES (:farm_id, :timestamp, :soil_moisture, :temperature, :light_intensity, :water_consumed, :nutrient_level, :plant_growth_stage)
         """, data)
         conn.commit()
-        print("INSERT SUCCESS:", data)
+        logger.info("INSERT SUCCESS: %s", data)
     except Exception as e:
-        print("INSERT ERROR:", e)
+        logger.error("INSERT ERROR: %s", e)
     finally:
         if cursor:
             cursor.close()
