@@ -1,13 +1,10 @@
 import oracledb
 import os
-from dotenv import load_dotenv
 
-load_dotenv()
-
-WALLET_PATH = os.getenv("WALLET_LOCATION")
-USER = os.getenv("DB_USERNAME")
-PASSWORD = os.getenv("DB_PASSWORD")
-DSN = os.getenv("DSN")
+USER = os.getenv("DB_USER")
+PASSWORD = os.getenv("DB_PASS")
+DSN = os.getenv("DB_DSN")
+WALLET_PATH = os.getenv("TNS_ADMIN", "/tmp/wallet")  # Render wallet path
 
 
 def get_connection():
@@ -15,12 +12,13 @@ def get_connection():
         user=USER,
         password=PASSWORD,
         dsn=DSN,
-        config_dir=WALLET_PATH,
-        wallet_location=WALLET_PATH
+        config_dir=WALLET_PATH
     )
 
 
 def insert_sensor_data(data):
+    conn = None
+    cursor = None
     try:
         conn = get_connection()
         cursor = conn.cursor()
@@ -30,8 +28,11 @@ def insert_sensor_data(data):
             VALUES (:farm_id, :timestamp, :soil_moisture, :temperature, :light_intensity, :water_consumed, :nutrient_level, :plant_growth_stage)
         """, data)
         conn.commit()
+        print("INSERT SUCCESS:", data)
     except Exception as e:
         print("INSERT ERROR:", e)
     finally:
-        cursor.close()
-        conn.close()
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
