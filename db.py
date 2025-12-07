@@ -1,8 +1,7 @@
 import os
-import oracledb
+import psycopg2
 import logging
 
-oracledb.thin_mode = True
 # ----------------------------
 # Logging setup
 # ----------------------------
@@ -29,10 +28,13 @@ logger.info("============================")
 def get_connection():
     try:
         logger.info("Connecting to Oracle...")
-        conn = oracledb.connect(
-            user=DB_USER,
-            password=DB_PASS,
-            dsn=DB_DSN
+        conn = psycopg2.connect(
+            host=os.getenv('DB_HOST'),
+            port=os.getenv('DB_PORT', 5432),
+            database=os.getenv('DB_NAME'),
+            user=os.getenv('DB_USER'),
+            password=os.getenv('DB_PASSWORD'),
+            sslmode='require'
         )
         logger.info("Connected successfully!")
         return conn
