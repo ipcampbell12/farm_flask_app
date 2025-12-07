@@ -8,7 +8,7 @@ NUM_FARMS = 5
 
 @app.route("/")
 def index():
-    return jsonify({"ok": True, "message": "Flask + Oracle is live!"})
+    return jsonify({"ok": True, "message": "Flask + Supabase is live!"})
 
 
 @app.route("/generate")
