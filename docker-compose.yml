@@ -1,0 +1,87 @@
+version: "3.9"
+
+services:
+  # ----------------------------------------
+  # Optional local Redis (commented out for Render)
+  # ----------------------------------------
+  # redis:
+  #   image: redis:7
+  #   container_name: redis
+  #   ports:
+  #     - "6379:6379"
+  #   environment:
+  #     REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+
+  # ----------------------------------------
+  # Optional local Postgres (commented out for Render)
+  # ----------------------------------------
+  # postgres:
+  #   image: postgres:15
+  #   container_name: postgres
+  #   environment:
+  #     POSTGRES_USER: ${DB_USER}
+  #     POSTGRES_PASSWORD: ${DB_PASSWORD}
+  #     POSTGRES_DB: ${DB_NAME}
+  #   ports:
+  #     - "5432:5432"
+
+  # ----------------------------------------
+  # Flask API
+  # ----------------------------------------
+  flask:
+    build: .
+    container_name: flask_app
+    command: python app.py
+    ports:
+      - "5000:5000"
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
+    # depends_on:
+    #   - redis
+    #   - postgres
+
+    # ----------------------------------------
+    # Celery Worker
+    # ----------------------------------------
+  celery_worker:
+    build: .
+    container_name: celery_worker
+    command: python celery_worker.py
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
+    # depends_on:
+    #   - flask
+    #   - redis
+    #   - postgres
+
+    # ----------------------------------------
+    # Celery Beat
+    # ----------------------------------------
+  celery_beat:
+    build: .
+    container_name: celery_beat
+    command: python celery_beat.py
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
+    # depends_on:
+    #   - flask
+    #   - redis
+    #   - postgres

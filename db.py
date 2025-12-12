@@ -26,11 +26,12 @@ logger.info(f"DB_USER: {DB_USER}")
 logger.info("=============================")
 
 # ----------------------------
-# DB Connection
+# Create DB connection
 # ----------------------------
 
 
 def get_connection():
+    """Create a new PostgreSQL connection (safe for Celery workers)."""
     try:
         logger.info("Connecting to Supabase Postgres...")
 
@@ -40,7 +41,8 @@ def get_connection():
             dbname=DB_NAME,
             user=DB_USER,
             password=DB_PASSWORD,
-            sslmode="require"
+            sslmode="require",
+            connect_timeout=5    # prevent long hangs in Celery
         )
 
         logger.info("Connected successfully!")
@@ -51,11 +53,12 @@ def get_connection():
         raise
 
 # ----------------------------
-# Insert data
+# Insert data into microfarm_sensors
 # ----------------------------
 
 
 def insert_sensor_data(data):
+    """Insert a single sensor reading into the database."""
     conn = None
     cursor = None
 
@@ -65,7 +68,8 @@ def insert_sensor_data(data):
 
         cursor.execute("""
             INSERT INTO microfarm_sensors 
-            (farm_id, timestamp, soil_moisture, temperature, light_intensity, water_consumed, nutrient_level, plant_growth_stage)
+            (farm_id, timestamp, soil_moisture, temperature, light_intensity, 
+             water_consumed, nutrient_level, plant_growth_stage)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """, (
             data["farm_id"],

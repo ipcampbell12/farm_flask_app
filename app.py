@@ -26,15 +26,15 @@ def index():
     })
 
 # ----------------------------
-# Data generation route
+# Core ETL logic (NOW reusable)
 # ----------------------------
 
 
-@app.route("/generate")
-def generate():
+def generate_all_farms(num_farms=NUM_FARMS):
+    """Generate and insert data for all farms."""
     inserted = []
 
-    for farm_id in range(1, NUM_FARMS + 1):
+    for farm_id in range(1, num_farms + 1):
         try:
             data = generate_sensor_data(farm_id)
             logger.info("Generated data: %s", data)
@@ -45,12 +45,24 @@ def generate():
         except Exception as e:
             logger.error("FAILED for farm_id=%s: %s", farm_id, e)
 
-    return jsonify(inserted)
+    return inserted
 
+# ----------------------------
+# Manual trigger route
+# ----------------------------
+
+
+@app.route("/generate")
+def generate():
+    """Manually trigger the ETL loop via HTTP."""
+    inserted = generate_all_farms()
+    return jsonify(inserted)
 
 # ----------------------------
 # Local vs Render startup
 # ----------------------------
+
+
 if __name__ == "__main__":
     app.run(
         host="0.0.0.0",
